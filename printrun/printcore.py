@@ -215,10 +215,11 @@ class printcore():
                 disable_hup(self.port)
                 self.printer_tcp = None
                 try:
+                    print("baud:" ,self.baud)
                     self.printer = Serial(port = self.port,
                                           baudrate = self.baud,
                                           timeout = 0.25,
-                                          parity = PARITY_ODD)
+                                          parity = PARITY_NONE)
                     self.printer.close()
                     self.printer.parity = PARITY_NONE
                     try:  #this appears not to work on many platforms, so we're going to call it but not care if it fails
@@ -257,9 +258,10 @@ class printcore():
         try:
             try:
                 try:
-                    line = self.printer.readline().decode('ascii')
+                    line = self.printer.readline()
+                    line = line.decode('utf_8')
                 except UnicodeDecodeError:
-                    self.logError(_("Got rubbish reply from %s at baudrate %s:") % (self.port, self.baud) +
+                    self.logError(_("Got rubbish reply from %s at baudrate %s: (line : %s)") % (self.port, self.baud, line) +
                                   "\n" + _("Maybe a bad baudrate?"))
                     return None
                 if self.printer_tcp and not line:
@@ -327,7 +329,7 @@ class printcore():
                     if empty_lines == 15: break
                 else: empty_lines = 0
                 if line.startswith(tuple(self.greetings)) \
-                   or line.startswith('ok') or "T:" in line:
+                   or line.startswith('R0 T'):
                     self.online = True
                     for handler in self.event_handler:
                         try: handler.on_online()
@@ -351,15 +353,15 @@ class printcore():
                 continue
             if line.startswith(tuple(self.greetings)) or line.startswith('ok'):
                 self.clear = True
-            if line.startswith('ok') and "T:" in line:
+            if line.startswith('R0 T'):
                 for handler in self.event_handler:
                     try: handler.on_temp(line)
                     except: logging.error(traceback.format_exc())
-            if line.startswith('ok') and "T:" in line and self.tempcb:
+            if line.startswith('R0 T') and self.tempcb:
                 # callback for temp, status, whatever
                 try: self.tempcb(line)
                 except: self.logError(traceback.format_exc())
-            elif line.startswith('Error'):
+            elif line.startswith('error'):
                 self.logError(line)
             # Teststrings for resend parsing       # Firmware     exp. result
             # line="rs N2 Expected checksum 67"    # Teacup       2

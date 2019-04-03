@@ -22,7 +22,7 @@ import logging
 from array import array
 
 gcode_parsed_args = ["x", "y", "e", "f", "z", "i", "j"]
-gcode_parsed_nonargs = ["g", "t", "m", "n"]
+gcode_parsed_nonargs = ["g", "t", "m", "n", "d"]
 to_parse = "".join(gcode_parsed_args + gcode_parsed_nonargs)
 gcode_exp = re.compile("\([^\(\)]*\)|;.*|[/\*].*\n|([%s])([-+]?[0-9]*\.?[0-9]*)" % to_parse)
 gcode_strip_comment_exp = re.compile("\([^\(\)]*\)|;.*|[/\*].*\n")
