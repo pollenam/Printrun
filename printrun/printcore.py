@@ -261,7 +261,7 @@ class printcore():
                     line = self.printer.readline()
                     line = line.decode('utf_8')
                 except UnicodeDecodeError:
-                    self.logWarning(_("Got rubbish reply from %s at baudrate %s: (line : %s)") % (self.port, self.baud, line) +
+                    logging.warning(_("Got rubbish reply from %s at baudrate %s: (line : %s)") % (self.port, self.baud, line) +
                                   "\n" + _("Maybe a bad baudrate?"))
                     return ""
                 if self.printer_tcp and not line:
