@@ -103,7 +103,7 @@ class printcore():
         self.startcb = None  # impl ()
         self.endcb = None  # impl ()
         self.onlinecb = None  # impl ()
-        self.loud = False  # emit sent and received lines to terminal
+        self.loud = True  # emit sent and received lines to terminal
         self.tcp_streaming_mode = False
         self.greetings = ['start', 'Grbl ']
         self.wait = 0  # default wait period for send(), send_now()
