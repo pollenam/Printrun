@@ -79,6 +79,8 @@ class printcore():
         # clear to send, enabled after responses
         # FIXME: should probably be changed to a sliding window approach
         self.clear = 0
+        self.commands_in_advance = 0
+        self.MAX_COMMANDS_IN_ADVANCE = 20
         # The printer has responded to the initial command and is active
         self.online = False
         # is a print currently running, true if printing, false if paused
@@ -352,6 +354,7 @@ class printcore():
             if line.startswith('DEBUG_'):
                 continue
             if line.startswith(tuple(self.greetings)) or line.startswith('ok'):
+                self.commands_in_advance -= 1
                 self.clear = True
             if line.startswith('R0 T'):
                 for handler in self.event_handler:
@@ -423,6 +426,7 @@ class printcore():
         if not gcode or not gcode.lines:
             return True
         self.clear = False
+        self.commands_in_advance = 0
         resuming = (startindex != 0)
         self.print_thread = threading.Thread(target = self._print,
                                              kwargs = {"resuming": resuming})
@@ -434,6 +438,7 @@ class printcore():
         self.paused = False
         self.mainqueue = None
         self.clear = True
+        self.commands_in_advance = 0
 
     # run a simple script if it exists, no multithreading
     def runSmallScript(self, filename):
@@ -570,7 +575,7 @@ class printcore():
     def _sendnext(self):
         if not self.printer:
             return
-        while self.printer and self.printing and not self.clear:
+        while self.printer and self.printing and self.commands_in_advance >= self.MAX_COMMANDS_IN_ADVANCE:
             time.sleep(0.001)
         # Only wait for oks when using serial connections or when not using tcp
         # in streaming mode
@@ -672,6 +677,7 @@ class printcore():
                 except: self.logError(traceback.format_exc())
             try:
                 self.printer.write((command + "\n").encode('ascii'))
+                self.commands_in_advance += 1
                 if self.printer_tcp:
                     try:
                         self.printer.flush()

@@ -319,8 +319,8 @@ class pronsole(cmd.Cmd):
             each command is executed, for the next prompt.
             We also use it to send M105 commands so that
             temp info gets updated for the prompt."""
-        if self.p.online and self.dynamic_temp:
-            self.p.send_now("M105")
+        # if self.p.online and self.dynamic_temp:
+        #     self.p.send_now("M105")
         self.prompt = self.promptf()
         return stop
 
@@ -882,8 +882,8 @@ class pronsole(cmd.Cmd):
             if do_monitoring:
                 if self.sdprinting and not self.paused:
                     self.p.send_now("M27")
-                if self.m105_waitcycles % 10 == 0:
-                    self.p.send_now("M105")
+                # if self.m105_waitcycles % 10 == 0:
+                    # self.p.send_now("M105")
                 self.m105_waitcycles += 1
         cur_time = time.time()
         wait_time = 0
@@ -1388,7 +1388,7 @@ class pronsole(cmd.Cmd):
         if "dynamic" in l:
             self.dynamic_temp = True
         if self.p.online:
-            self.p.send_now("M105")
+            # self.p.send_now("M105")
             time.sleep(0.75)
             if not self.status.bed_enabled:
                 self.log(_("Hotend: %s%s/%s%s") % (self.status.extruder_temp, DEG, self.status.extruder_temp_target, DEG))
@@ -1477,7 +1477,7 @@ class pronsole(cmd.Cmd):
         prev_msg_len = 0
         try:
             while True:
-                self.p.send_now("M105")
+                # self.p.send_now("M105")
                 if self.sdprinting:
                     self.p.send_now("M27")
                 time.sleep(interval)
